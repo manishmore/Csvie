@@ -1,11 +1,16 @@
 <?php
 
-class Banners_Model_Banners extends JO_Db_Table
+class Csvie_Model_Csvie extends JO_Db_Table
 {
 
     public static function create($data)
     {
       die('sdsd');
+
+
+      echo 'dsds55s5s';
+      return null;
+      /*
         $db = JO_Db::getDefaultAdapter();
         $db->insert('banners', array(
             'name' => (string) $data['name'],
@@ -19,7 +24,8 @@ class Banners_Model_Banners extends JO_Db_Table
             'category_id' => isset($data['category_id']) ? $data['category_id'] : 0
         ));
         return $db->lastInsertId();
-    }
+      */  
+  }
 
     public static function edit($id, $data)
     {
@@ -113,7 +119,7 @@ class Banners_Model_Banners extends JO_Db_Table
                 ->from('banners')
                 ->where('id = ?', $id)
                 ->limit(1);
-
+        return null;
         return $db->fetchRow($query);
     }
 

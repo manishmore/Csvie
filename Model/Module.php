@@ -20,7 +20,7 @@ class Csvie_Model_Module extends System_Model_Module
             'controller' => 'admin',
             'action' => 'delete',
             'title' => 'Delete',
-            'description' => 'Delete banner'
+            'description' => 'Delete CSV'
         ),
         array(
             'controller' => 'admin',

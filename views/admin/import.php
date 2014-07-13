@@ -1,53 +1,126 @@
-
-<form enctype="multipart/form-data" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
- 
-File to import:<br />
- 
-<input size='30' type='file' name='filename'>
- 
-<input type="submit" name="submit" value="Upload"></form>
- 
-
-
 <?php
 
-    $host = 'localhost'; // MYSQL database host adress
-    $user = 'root'; // Mysql Datbase user
-    $pass = 'root'; // Mysql Datbase password
-    $con = mysql_connect($host, $user, $pass);
-    
-    if (!$con) {
-      die('Could not connectss: ' . mysql_error());
-    }
-    $db = 'upload';
+$message = null;
 
-    mysql_select_db("$db", $con);
+$allowed_extensions = array('csv');
 
-//Assuming that, your connect.php file contains the database related information, ie. hostname, username etc.
- 
-   //Upload File
-    if (isset($_POST['submit'])) {
-    if (is_uploaded_file($_FILES['filename']['tmp_name'])) {
-       
-     
-    //Import uploaded file to Database
-    $row = 1;
-    $handle = fopen($_FILES['filename']['tmp_name'], "r");
- 
-    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-   
- 
- 
-              //Update Database Values
- 
-        $import="insert into test (name, data) VALUES('".mysql_real_escape_string($data[0])."', '".mysql_real_escape_string($data[1])."')";
-        mysql_query($import) or die(mysql_error());
-     
-    }
- 
- 
-    fclose($handle);
-     }
+
+$upload_path = '/home/manish/public_html/test/exercise-files/exercise-files';
+
+if (!empty($_FILES['file'])) {
+
+	if ($_FILES['file']['error'] == 0) {
+			
+		// check extension
+		$file = explode(".", $_FILES['file']['name']);
+		$extension = array_pop($file);
+		
+		if (in_array($extension, $allowed_extensions)) {
+	
+			if (move_uploaded_file($_FILES['file']['tmp_name'], $upload_path.'/'.$_FILES['file']['name'])) {
+		
+				if (($handle = fopen($upload_path.'/'.$_FILES['file']['name'], "r")) !== false) {
+					
+					$keys = array();
+					$out = array();
+					
+					$insert = array();
+					
+					$line = 1;
+					
+					while (($row = fgetcsv($handle, 0, ',', '"')) !== FALSE) {
+				       	
+				       	foreach($row as $key => $value) {
+				       		if ($line === 1) {
+				       			$keys[$key] = $value;
+				       		} else {
+				       			$out[$line][$key] = $value;
+				       			
+				       		}
+				       	}
+				        
+				        $line++;
+				      
+				    }
+				    
+				    fclose($handle);    
+				    
+				    if (!empty($keys) && !empty($out)) {
+				    	
+				    	$db = new PDO('mysql:host=localhost;dbname=test', 'root', 'root');
+				   		$db->exec("SET CHARACTER SET utf8");
+				    
+				    	foreach($out as $key => $value) {
+				    	   var_dump($keys);
+            var_dump($value['2']);
+
+				    		$sql  = "INSERT INTO `books` (`";
+				    		$sql .= implode("`, `", $keys);
+				    		$sql .= "`) VALUES (";
+				    		$sql .= implode(", ", array_fill(0, count($keys), "?"));
+				    		$sql .= ")";
+echo $sql;
+
+				    		$statement = $db->prepare($sql);
+				    		$statement->execute($value);
+				    		
+				   		}
+				   		
+				   		$message = '<span class="green">File has been uploaded successfully</span>';
+				   		
+				   	}	
+				    
+				}
+				
+			}
+			
+		} else {
+			$message = '<span class="red">Only .csv file format is allowed</span>';
+		}
+		
+	} else {
+		$message = '<span class="red">There was a problem with your file</span>';
+	}
+	
 }
-    ?>
- 
+
+?>
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Upload CSV to MySQL</title>
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<link href="/css/core.css" rel="stylesheet" type="text/css" />
+	<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body>
+
+<section id="wrapper">	
+	
+	<form action="" method="post" enctype="multipart/form-data">
+	
+		<table cellpadding="0" cellspacing="0" border="0" class="table">
+			<tr>
+				<th><label for="file">Select file</label> <?php echo $message; ?></th>
+			</tr>
+			<tr>
+				<td><input type="file" name="file" id="file" size="30" /></td>
+			</tr>
+			<tr>
+				<td><input type="submit" id="btn" class="fl_l" value="Submit" /></td>
+			</tr>
+		</table>
+		
+	</form>
+	
+</section>
+
+</body>
+</html>
+
+
+

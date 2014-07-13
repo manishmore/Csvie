@@ -5,6 +5,7 @@ class Csvie_AdminController extends Helper_Controller_Admin
 
     public static function config()
     {
+      die('sdsd');
         return array(
             'name' => JO_Translate::getInstance()->translate('CSVIE'),
             'has_permision' => true,
