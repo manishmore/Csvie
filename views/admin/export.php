@@ -1,24 +1,21 @@
-
 <?php
 $host = 'localhost'; // MYSQL database host adress
 $db = 'upload'; // MYSQL database name
 $user = 'root'; // Mysql Datbase user
 $pass = 'root'; // Mysql Datbase password
-
+ if($_SERVER['REQUEST_METHOD'] == "POST") {
  function exportCSV() {
-   // mkdir($this->parOnline2ParPath . $this->newDirectory, 01777);
-     
-$host = 'localhost'; // MYSQL database host adress
-
-$user = 'root'; // Mysql Datbase user
-$pass = 'root'; // Mysql Datbase password
-    $con = mysql_connect($host, $user, $pass);
+	$host = 'localhost'; // MYSQL database host adress
+	$user = 'root'; // Mysql Datbase user
+	$pass = 'root'; // Mysql Datbase password
+	$con = mysql_connect($host, $user, $pass);
     
     if (!$con) {
       die('Could not connectss: ' . mysql_error());
     }
-    $db = 'upload';
-    //$this->dbName = '';
+
+    //change databse name here 
+    $db = 'test1';
     mysql_select_db("$db", $con);
     $getTable = "SELECT a.sku,a.vsku,a3.name  AS product_tags_name,a.title  AS product_name ,a.description  AS product_description,a.price  AS product_price,a.procesing_unit,a12.title AS shop_name,a14.iso2 AS ship_from_country,
 a8.picture  AS product_pic_name,a15.title AS Category_title,a1.quantity AS product_quantity,a16.title AS section_name 
@@ -41,7 +38,7 @@ WHERE 1
 GROUP BY a.id DESC";
   echo $getTable;
     $table = mysql_query ($getTable) or die ("Sql error : " . mysql_error());
-    $exportCSV = fopen("/home/manish/public_html/test/export.csv", 'w');
+    $exportCSV = fopen("/home/web/public_html/testing/export.csv", 'w');
 
     // fetch a row and write the column names out to the file
     $row = mysql_fetch_assoc($table);
@@ -69,10 +66,43 @@ GROUP BY a.id DESC";
       fputs($exportCSV, $line);
     }
     fclose($exportCSV);
-  }
 
-exportCSV();
-die('sdsd');
- 
+header('Location: http://localhost/testing/export.csv');
+exit;
+       
+  }
+ exportCSV();
+}
 ?>
+
+
+
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>EXPORT CSV Form MySQL</title>
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<link href="/css/core.css" rel="stylesheet" type="text/css" />
+	<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body>
+<section id="wrapper">
+	<form action="" method="post" enctype="multipart/form-data">
+		<table cellpadding="0" cellspacing="0" border="0" class="table">
+                 <tr>EXPORT CSV FILE :</tr>
+			<tr>
+				<td><input type="submit" id="btn" class="fl_l" value="Submit" /></td>
+			</tr>
+		</table>
+
+	</form>
+
+</section>
+
+</body>
+</html>
 
