@@ -37,7 +37,7 @@ LEFT JOIN shops_section a16 ON  a.shop_section = a16.section_id
 WHERE 1
 GROUP BY a.id DESC";
   echo $getTable;
-    $table = mysql_query ($getTable) or die ("Sql error : " . mysql_error());
+    $table = mysql_query($getTable) or die ("Sql error : " . mysql_error());
     $exportCSV = fopen("/home/web/public_html/testing/export.csv", 'w');
 
     // fetch a row and write the column names out to the file
@@ -74,9 +74,6 @@ exit;
  exportCSV();
 }
 ?>
-
-
-
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
