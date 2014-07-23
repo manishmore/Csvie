@@ -6,20 +6,20 @@ $pass = 'root'; // Mysql Datbase password
  //if($_SERVER['REQUEST_METHOD'] == "POST") {
   if(@$_POST['add']){
 
-function exportCSV() {
-	$host = 'localhost'; // MYSQL database host adress
-	$user = 'root'; // Mysql Datbase user
-	$pass = 'root'; // Mysql Datbase password
-	$con = mysql_connect($host, $user, $pass);
+    function exportCSV() {
+      $host = 'localhost'; // MYSQL database host adress
+      $user = 'root'; // Mysql Datbase user
+      $pass = 'root'; // Mysql Datbase password
+      $con = mysql_connect($host, $user, $pass);
 
-  if (!$con) {
-    die('Could not connectss: ' . mysql_error());
-  }
+      if (!$con) {
+        die('Could not connectss: ' . mysql_error());
+      }
 
-  //change databse name here
-  $db = 'test1';
-  mysql_select_db("$db", $con);
-  $getTable = "SELECT a.sku,a.vsku,a3.name  AS product_tags_name,a.title  AS product_name ,a.description  AS product_description,a.price  AS product_price,a.procesing_unit,a12.title AS shop_name,a14.iso2 AS ship_from_country,
+      //change databse name here
+      $db = 'test1';
+      mysql_select_db("$db", $con);
+      $getTable = "SELECT a.sku,a.vsku,a3.name  AS product_tags_name,a.title  AS product_name ,a.description  AS product_description,a.price  AS product_price,a.procesing_unit,a12.title AS shop_name,a14.iso2 AS ship_from_country,
 a8.picture  AS product_pic_name,a15.title AS Category_title,a1.quantity AS product_quantity,a16.title AS section_name
 FROM item a
 LEFT JOIN item_quantity a1 ON a.id = a1.item
@@ -38,41 +38,41 @@ LEFT JOIN category_description a15 ON a.category = a15.category_id
 LEFT JOIN shops_section a16 ON  a.shop_section = a16.section_id
 WHERE 1
 GROUP BY a.id DESC";
-  echo $getTable;
-  $table = mysql_query($getTable) or die ("Sql error : " . mysql_error());
-  $exportCSV = fopen("/home/web/public_html/testing/export.csv", 'w');
+      echo $getTable;
+      $table = mysql_query($getTable) or die ("Sql error : " . mysql_error());
+      $exportCSV = fopen("/home/web/public_html/testing/export.csv", 'w');
 
-  // fetch a row and write the column names out to the file
-  $row = mysql_fetch_assoc($table);
-  $line = "";
-  $comma = "";
-  foreach($row as $name => $value) {
-    $line .= $comma . '"' . str_replace('"', '""', $name) . '"';
-    $comma = "\t";
-  }
-  $line .= "\n";
-  fputs($exportCSV, $line);
+      // fetch a row and write the column names out to the file
+      $row = mysql_fetch_assoc($table);
+      $line = "";
+      $comma = "";
+      foreach($row as $name => $value) {
+        $line .= $comma . '"' . str_replace('"', '""', $name) . '"';
+        $comma = "\t";
+      }
+      $line .= "\n";
+      fputs($exportCSV, $line);
 
-  // remove the result pointer back to the start
-  mysql_data_seek($table, 0);
+      // remove the result pointer back to the start
+      mysql_data_seek($table, 0);
 
-  // and loop through the actual data
-  while($row = mysql_fetch_assoc($table)) {
-    $line = "";
-    $comma = "";
-    foreach($row as $value) {
-      $line .= $comma . '"' . str_replace('"', '""', $value) . '"';
-      $comma = "\t";
+      // and loop through the actual data
+      while($row = mysql_fetch_assoc($table)) {
+        $line = "";
+        $comma = "";
+        foreach($row as $value) {
+          $line .= $comma . '"' . str_replace('"', '""', $value) . '"';
+          $comma = "\t";
+        }
+        $line .= "\n";
+        fputs($exportCSV, $line);
+      }
+      fclose($exportCSV);
+
+      header('Location: http://localhost/testing/export.csv');
+      exit;
+
     }
-    $line .= "\n";
-    fputs($exportCSV, $line);
-  }
-  fclose($exportCSV);
-
-  header('Location: http://localhost/testing/export.csv');
-  exit;
-
-}
  exportCSV();
 }
 
@@ -225,14 +225,14 @@ if(@$_POST['subtract']){
                 WHERE a.`title`= 'Cotton' AND a3.title = 'Blanket' AND a6.parent_id IS NULL
                 GROUP BY a1.category_id;
               */
- //var_dump($row['Category_title']);
+              //var_dump($row['Category_title']);
               if(strpos($row['Category_title'],'/')){
-              $exload = explode('/' ,$row['Category_title']);
-              $count = count($exload);
-              //var_dump($count);
-              //three places category sql.
-              if( isset($exload[1]) && isset($exload[2]) && isset($exload[0])){
-                $pro_category = mysql_query("SELECT a.category_id AS 3st_id
+                $exload = explode('/' ,$row['Category_title']);
+                $count = count($exload);
+                //var_dump($count);
+                //three places category sql.
+                if( isset($exload[1]) && isset($exload[2]) && isset($exload[0])){
+                  $pro_category = mysql_query("SELECT a.category_id AS 3st_id
 		FROM category_description a
 		LEFT JOIN category a1 ON a.category_id = a1.category_id
 		LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
@@ -242,17 +242,17 @@ if(@$_POST['subtract']){
 		WHERE a.title = '".$exload[2]."' AND a3.title = '".$exload[1]."' AND a6.parent_id IS NULL
 		group by a1.category_id;");
 
-                
-              } else if(isset($exload[1]) && isset($exload[0])){
-                $pro_category = mysql_query("SELECT a1.category_id AS 2and_id
+
+                } else if(isset($exload[1]) && isset($exload[0])){
+                  $pro_category = mysql_query("SELECT a1.category_id AS 2and_id
 				FROM category_description a
 				LEFT JOIN category a1 ON a.category_id = a1.category_id
 				LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
 				LEFT JOIN category a4 ON a3.category_id = a4.category_id
 				WHERE a.`title`= '".$exload[1]."'  AND a3.`title`= '".$exload[0]."' AND a4.parent_id IS NULL
 				group by a1.category_id;");
-              } else if($count=4){
-                $pro_category=	mysql_query("SELECT a.category_id AS 1st_id
+                } else if($count=4){
+                  $pro_category=	mysql_query("SELECT a.category_id AS 1st_id
 									FROM category_description a
 									LEFT JOIN category a1 ON a.category_id = a1.category_id
 									LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
@@ -263,37 +263,36 @@ if(@$_POST['subtract']){
 									LEFT JOIN category a8 ON a7.category_id = a8.category_id
 									WHERE a.`title`= '".$exload[3]."' AND a3.title = '".$exload[2]."' AND a8.parent_id IS NULL
 									GROUP BY a1.category_id;");
-               }
-              $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-              $category_id = $pro_category['0'];
+                }
+                $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                $category_id = $pro_category['0'];
               }else{
-              $category_title = mysql_real_escape_string($row['Category_title']);
-              $pro_category = mysql_query("SELECT a1.category_id
+                $category_title = mysql_real_escape_string($row['Category_title']);
+                $pro_category = mysql_query("SELECT a1.category_id
 		                         FROM category_description a
 		                         INNER JOIN category a1 ON a.category_id = a1.category_id
 		                         WHERE a.title = '".$category_title."'AND a1.parent_id IS NULL;");
-                             
-                  if(is_null($pro_category['0'])){
-                    $category_new =  mysql_query("INSERT INTO `category`(`parent_id`, `date_added`, `date_modified`, `sort_order`, `status`) VALUES (NULL,NOW(),NOW(),1,1);");
-                    $category_id = mysql_insert_id();   
-                    $category_description = mysql_query("INSERT INTO `category_description`(`category_id`, `language_id`, `title`, `meta_title`) VALUES ('$category_id',1,'$category_title','$category_title');");  
-                   }else{  
-                    $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-                    $category_id = $pro_category['0'];
-                   }
+
+                if(is_null($pro_category['0'])){
+                  $category_new =  mysql_query("INSERT INTO `category`(`parent_id`, `date_added`, `date_modified`, `sort_order`, `status`) VALUES (NULL,NOW(),NOW(),1,1);");
+                  $category_id = mysql_insert_id();
+                  $category_description = mysql_query("INSERT INTO `category_description`(`category_id`, `language_id`, `title`, `meta_title`) VALUES ('$category_id',1,'$category_title','$category_title');");
+                }else{
+                  $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                  $category_id = $pro_category['0'];
+                }
               }
-             //$category_id = $pro_category[0];
-             // var_dump($category_id);
+              //$category_id = $pro_category[0];
+              // var_dump($category_id);
               /*
                 insert new product in item table
               */
               $sql = "INSERT INTO `item` (`category`, `user`, `title`,`description`,`shop_id`,`shop_section`,`shop_section_text`,`price`,`procesing_unit`, `ship_from_country`, `created_at`, `hand_picked`, `active`, `store`, `fee_paid`,`approved`) VALUES ('$category_id','59','$product_name','$pro_description','40','$shop_section','$shop_section_text','$price', '$procesing_unit', '$ship_from_country', 'NOW()','1', '1', '40','1', '1')";
-                  //  echo $sql;
+              //  echo $sql;
               $sql_run = mysql_query($sql);
 
               //$category = mysql_fetch_array($sql_run) or die(mysql_error());
               $last_item = mysql_insert_id();
-              var_dump( $last_item);
               /*
                 products quantity
               */
