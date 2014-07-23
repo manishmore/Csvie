@@ -5,7 +5,7 @@ $user = 'root'; // Mysql Datbase user
 $pass = 'root'; // Mysql Datbase password
  //if($_SERVER['REQUEST_METHOD'] == "POST") {
   if(@$_POST['add']){
-die('first');
+
 function exportCSV() {
 	$host = 'localhost'; // MYSQL database host adress
 	$user = 'root'; // Mysql Datbase user
@@ -225,10 +225,13 @@ if(@$_POST['subtract']){
                 WHERE a.`title`= 'Cotton' AND a3.title = 'Blanket' AND a6.parent_id IS NULL
                 GROUP BY a1.category_id;
               */
+ //var_dump($row['Category_title']);
+              if(strpos($row['Category_title'],'/')){
               $exload = explode('/' ,$row['Category_title']);
               $count = count($exload);
+              //var_dump($count);
               //three places category sql.
-              if($count = '3'){
+              if( isset($exload[1]) && isset($exload[2]) && isset($exload[0])){
                 $pro_category = mysql_query("SELECT a.category_id AS 3st_id
 		FROM category_description a
 		LEFT JOIN category a1 ON a.category_id = a1.category_id
@@ -237,21 +240,18 @@ if(@$_POST['subtract']){
 		LEFT JOIN category_description a5 ON a4.parent_id = a5.category_id
 		LEFT JOIN category a6 ON a5.category_id = a6.category_id
 		WHERE a.title = '".$exload[2]."' AND a3.title = '".$exload[1]."' AND a6.parent_id IS NULL
-		group by a1.category_id");
-              }else if($count = '2'){
+		group by a1.category_id;");
+
+                
+              } else if(isset($exload[1]) && isset($exload[0])){
                 $pro_category = mysql_query("SELECT a1.category_id AS 2and_id
 				FROM category_description a
 				LEFT JOIN category a1 ON a.category_id = a1.category_id
 				LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
 				LEFT JOIN category a4 ON a3.category_id = a4.category_id
 				WHERE a.`title`= '".$exload[1]."'  AND a3.`title`= '".$exload[0]."' AND a4.parent_id IS NULL
-				group by a1.category_id");
-              }else if($count = '1'){
-                $pro_category = mysql_query("SELECT a1.category_id
-		                         FROM category_description a
-		                         INNER JOIN category a1 ON a.category_id = a1.category_id
-		                         WHERE a.title = '".$exload[0]."' AND a1.parent_id IS NULL");
-              }else if($count=4){
+				group by a1.category_id;");
+              } else if($count=4){
                 $pro_category=	mysql_query("SELECT a.category_id AS 1st_id
 									FROM category_description a
 									LEFT JOIN category a1 ON a.category_id = a1.category_id
@@ -263,19 +263,37 @@ if(@$_POST['subtract']){
 									LEFT JOIN category a8 ON a7.category_id = a8.category_id
 									WHERE a.`title`= '".$exload[3]."' AND a3.title = '".$exload[2]."' AND a8.parent_id IS NULL
 									GROUP BY a1.category_id;");
-              }
+               }
               $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-              var_dump($pro_category[0]);
-              $category_id = $pro_category[0];
+              $category_id = $pro_category['0'];
+              }else{
+              $category_title = mysql_real_escape_string($row['Category_title']);
+              $pro_category = mysql_query("SELECT a1.category_id
+		                         FROM category_description a
+		                         INNER JOIN category a1 ON a.category_id = a1.category_id
+		                         WHERE a.title = '".$category_title."'AND a1.parent_id IS NULL;");
+                             
+                  if(is_null($pro_category['0'])){
+                    $category_new =  mysql_query("INSERT INTO `category`(`parent_id`, `date_added`, `date_modified`, `sort_order`, `status`) VALUES (NULL,NOW(),NOW(),1,1);");
+                    $category_id = mysql_insert_id();   
+                    $category_description = mysql_query("INSERT INTO `category_description`(`category_id`, `language_id`, `title`, `meta_title`) VALUES ('$category_id',1,'$category_title','$category_title');");  
+                   }else{  
+                    $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                    $category_id = $pro_category['0'];
+                   }
+              }
+             //$category_id = $pro_category[0];
+             // var_dump($category_id);
               /*
                 insert new product in item table
               */
               $sql = "INSERT INTO `item` (`category`, `user`, `title`,`description`,`shop_id`,`shop_section`,`shop_section_text`,`price`,`procesing_unit`, `ship_from_country`, `created_at`, `hand_picked`, `active`, `store`, `fee_paid`,`approved`) VALUES ('$category_id','59','$product_name','$pro_description','40','$shop_section','$shop_section_text','$price', '$procesing_unit', '$ship_from_country', 'NOW()','1', '1', '40','1', '1')";
+                  //  echo $sql;
+              $sql_run = mysql_query($sql);
 
-              $sql = mysql_query($sql);
-
-              $category = mysql_fetch_array($sql) or die(mysql_error());
+              //$category = mysql_fetch_array($sql_run) or die(mysql_error());
               $last_item = mysql_insert_id();
+              var_dump( $last_item);
               /*
                 products quantity
               */
@@ -350,12 +368,12 @@ if(@$_POST['subtract']){
 		<table cellpadding="0" cellspacing="0" border="0" class="table">
                  <tr>EXPORT CSV FILE :</tr>
 			<tr>
-				<td><input type="submit" id="btn" class="fl_l" value="Submit" name="add" /></td>
+				<td><input type="submit" id="btn" class="fl_l" value="export" name="add" /></td>
 			</tr>
                       <tr>
                                <td>File upload :- </td><br/>
                                 <td><input type="file" name="file" id="file" size="30" /></td>
-                               <td><input type="submit" name="subtract" value="Subtract 10"> </td>
+                               <td><input type="submit" name="subtract" value="Import"> </td>
                       </tr>
 		</table>
 
