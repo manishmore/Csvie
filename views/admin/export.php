@@ -147,38 +147,47 @@ if(@$_POST['subtract']){
               $category = '218';
               $item = '243';
               $user = '59';
-              $product_name = mysql_real_escape_string($row['product_name']);
-              $pro_description = mysql_real_escape_string($row['product_description']);
+              $product_name = mysql_real_escape_string($row['Product Name']);
+              $pro_description = mysql_real_escape_string($row['Description']);
               $shop_id = '40';
               $shop_section = '81';
               $shop_section_text = 'NULL';
-              $price = $row['product_price'];
+              $price = $row['Price'];
               $procesing_unit = '2';
               $ship_from_country = '107';
               $created_at = "NOW()";
               $hand_picked = '1';
               $active = '';
               $store = '' ;
-              $procesing_unit = mysql_real_escape_string($row['procesing_unit']);
-              $pro_quantity = $row['product_quantity'];
-              $picture_url = $row['product_pic_name'];
+              //$procesing_unit = mysql_real_escape_string($row['procesing_unit']);
+              $procesing_unit = '20';
+              $pro_quantity = mysql_real_escape_string($row['Quantity']);
+              $picture_url = mysql_real_escape_string($row['Featured Image']);
               $picture_name = '';
-              //$sql = mysql_query("SELECT category_id FROM `category_description` WHERE title= '".mysql_real_escape_string($row['Category_title'])."' LIMIT 1");
-              //$row2 = mysql_fetch_array($sql);
+              $sku = mysql_real_escape_string($row['Product SKU']);
+              $vsku = mysql_real_escape_string($row['Product ID']);
+              $fabric = mysql_real_escape_string($row['Attribute: Saree Fabric']); 
+              $size =  mysql_real_escape_string( $row['Attribute: Size']);
+              $color = mysql_real_escape_string($row['Attribute: Colors']);
 
+             //var_dump($row);
+             //$sql = mysql_query("SELECT category_id FROM `category_description` WHERE title= '".mysql_real_escape_string($row['Category_title'])."' LIMIT 1");
+             //$row2 = mysql_fetch_array($sql);
+             /*
               $shop_section = mysql_query("SELECT section_id,title FROM shops_section where title ='".mysql_real_escape_string($row['section_name'])."';");
-
               $shop_section_name = mysql_fetch_array($shop_section) or die(mysql_error());
               $shop_section = $shop_section_name['section_id'];
-              $shop_section_text = $shop_section_name['title'];
-              if(empty($shop_section)){
+              $shop_section_text = $shop_section_name['title'];*/
+              $shop_section_text = 'Latest';    
+              /*if(empty($shop_section)){
                 $section_name = mysql_real_escape_string($row['section_name']);
                 $shops_section = mysql_query("INSERT INTO `shops_section`( `shop_id`, `title`, `sort_order`, `meta_keywords`) VALUES ('41','$section_name','0','$section_name');");
                 $shop_section = mysql_insert_id();
                 $section_name = mysql_query("SELECT title FROM shops_section where section_id ='$shop_section';");
                 $section_name = mysql_fetch_array($shop_section) or die(mysql_error());
                 $section_name = $section_name['title'];
-              }
+              }*/
+                $shop_section = '81';
               /*
                 category find it out or create new one from csv file.
                 first sql :-
@@ -202,7 +211,7 @@ if(@$_POST['subtract']){
                 LEFT JOIN category_description a5 ON a4.parent_id = a5.category_id
                 LEFT JOIN category a6 ON a5.category_id = a6.category_id
                 WHERE a.`title`= 'Cotton' AND a3.title = 'Blanket' AND a6.parent_id IS NULL
-                GROUP BY a1.category_id;
+                GROUP BY a1.category_id;$product_name
                 1=>2
                 SELECT a.title AS first_title,a1.category_id AS 2and_id , a3.title AS second_title,a4.category_id AS 1st_id
                 FROM category_description a
@@ -226,13 +235,30 @@ if(@$_POST['subtract']){
                 GROUP BY a1.category_id;
               */
               //var_dump($row['Category_title']);
-              if(strpos($row['Category_title'],'/')){
-                $exload = explode('/' ,$row['Category_title']);
+
+              if(strpos($row['Category'],'>')){
+                $exload = explode('>' ,$row['Category']);
                 $count = count($exload);
-                //var_dump($count);
-                //three places category sql.
-                if( isset($exload[1]) && isset($exload[2]) && isset($exload[0])){
-                  $pro_category = mysql_query("SELECT a.category_id AS 3st_id
+                 if(strpos($exload[0],'|Jewellery')){
+                $exload[0] = str_replace("|Jewellery","", $exload[1]);
+                } 
+                if( isset($exload[1]) && strpos($exload[1],'|Jewellery')){
+                $exload[1] = str_replace("|Jewellery","", $exload[1]);
+                 // var_dump($exload[1]); 
+                }  
+                if( isset($exload[2]) && strpos($exload[2],'|Jewellery')){
+                  $exload[2] = str_replace("|Jewellery","", $exload[2]);
+                }
+                 echo "<pre>";
+                 var_dump($exload);
+                if( isset($exload[3]) && strpos($exload[3],'|Jewellery')){
+                  $exload[3] = str_replace("|Jewellery","", $exload[3]);
+                }
+                //var_dump($exload);
+                //  var_dump($exload);
+               //three places category sql.
+                if( isset($exload[0]) && isset($exload[1]) && isset($exload[2]) ){
+   $pro_category = mysql_query("SELECT a.category_id AS 3st_id
 		FROM category_description a
 		LEFT JOIN category a1 ON a.category_id = a1.category_id
 		LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
@@ -241,18 +267,20 @@ if(@$_POST['subtract']){
 		LEFT JOIN category a6 ON a5.category_id = a6.category_id
 		WHERE a.title = '".$exload[2]."' AND a3.title = '".$exload[1]."' AND a6.parent_id IS NULL
 		group by a1.category_id;");
-
-
+                    //var_dump($pro_category);
+                    //die('3');
+                    //die('3');
                 } else if(isset($exload[1]) && isset($exload[0])){
+
                   $pro_category = mysql_query("SELECT a1.category_id AS 2and_id
 				FROM category_description a
 				LEFT JOIN category a1 ON a.category_id = a1.category_id
 				LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
 				LEFT JOIN category a4 ON a3.category_id = a4.category_id
-				WHERE a.`title`= '".$exload[1]."'  AND a3.`title`= '".$exload[0]."' AND a4.parent_id IS NULL
+				WHERE a.`title`= '".$exload[1]."' AND a3.`title`= '".$exload[0]."'AND a4.parent_id IS NULL
 				group by a1.category_id;");
-                } else if($count=4){
-                  $pro_category=	mysql_query("SELECT a.category_id AS 1st_id
+                } else if($count=4 && isset($exload[1]) && isset($exload[2]) && isset($exload[3]) ){
+                  $pro_category = mysql_query("SELECT a.category_id AS 1st_id
 									FROM category_description a
 									LEFT JOIN category a1 ON a.category_id = a1.category_id
 									LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
@@ -263,32 +291,44 @@ if(@$_POST['subtract']){
 									LEFT JOIN category a8 ON a7.category_id = a8.category_id
 									WHERE a.`title`= '".$exload[3]."' AND a3.title = '".$exload[2]."' AND a8.parent_id IS NULL
 									GROUP BY a1.category_id;");
-                }
-                $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-                $category_id = $pro_category['0'];
+                 $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                 $category_id = $pro_category['0'];    
+            }else if( isset($exload[0])){
+
+            $pro_category = mysql_query("SELECT a1.category_id
+		                         FROM category_description a
+		                         INNER JOIN category a1 ON a.category_id = a1.category_id
+		                         WHERE a.title = '".$exload[0]."'AND a1.parent_id IS NULL;");
+         }
+               
               }else{
-                $category_title = mysql_real_escape_string($row['Category_title']);
+                $category_title = mysql_real_escape_string($row['Category']); 
+             // var_dump($category_title);
+                if(strpos($category_title,'|Jewellery')){
+                $category_title = str_replace("|Jewellery","", $category_title);
+                } 
+
                 $pro_category = mysql_query("SELECT a1.category_id
 		                         FROM category_description a
 		                         INNER JOIN category a1 ON a.category_id = a1.category_id
 		                         WHERE a.title = '".$category_title."'AND a1.parent_id IS NULL;");
-
-                if(is_null($pro_category['0'])){
-                  $category_new =  mysql_query("INSERT INTO `category`(`parent_id`, `date_added`, `date_modified`, `sort_order`, `status`) VALUES (NULL,NOW(),NOW(),1,1);");
-                  $category_id = mysql_insert_id();
-                  $category_description = mysql_query("INSERT INTO `category_description`(`category_id`, `language_id`, `title`, `meta_title`) VALUES ('$category_id',1,'$category_title','$category_title');");
-                }else{
-                  $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-                  $category_id = $pro_category['0'];
-                }
+                   
+             // die('sds55');
               }
-              //$category_id = $pro_category[0];
-              // var_dump($category_id);
+                  if(!empty($pro_category)){
+                   $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                   $category_id = $pro_category['0'];
+                  }
+                  var_dump($category_id);
+                  //die('sds85');
+                  //$category_id = $pro_category[0];
+                  // var_dump($category_id);
               /*
                 insert new product in item table
               */
-              $sql = "INSERT INTO `item` (`category`, `user`, `title`,`description`,`shop_id`,`shop_section`,`shop_section_text`,`price`,`procesing_unit`, `ship_from_country`, `created_at`, `hand_picked`, `active`, `store`, `fee_paid`,`approved`) VALUES ('$category_id','59','$product_name','$pro_description','40','$shop_section','$shop_section_text','$price', '$procesing_unit', '$ship_from_country', 'NOW()','1', '1', '40','1', '1')";
-              //  echo $sql;
+              $sql = "INSERT INTO `item` (`category`, `user`, `title`,`description`,`shop_id`,`shop_section`,`shop_section_text`,`price`,`procesing_unit`, `ship_from_country`, `created_at`, `hand_picked`, `active`, `store`, `fee_paid`,`approved`,`sku`, `vsku`,`Attribute: Saree Fabric`,`Attribute: Colors`,`Attribute: Size`) VALUES ('$category_id','59','$product_name','$pro_description','40','$shop_section','$shop_section_text','$price', '$procesing_unit', '$ship_from_country', 'NOW()','1', '1', '40','1', '1','$sku','$vsku','$fabric','$color','$size');";
+
+             var_dump($sql);
               $sql_run = mysql_query($sql);
 
               //$category = mysql_fetch_array($sql_run) or die(mysql_error());
@@ -297,7 +337,15 @@ if(@$_POST['subtract']){
                 products quantity
               */
               $quantity = mysql_query("INSERT INTO `item_quantity`(`item`,`quantity`) VALUES ('$last_item','$pro_quantity')");
-
+              
+               /*
+                 for the featured item here .
+               */
+             $fitem = $row['Featured'];
+             //var_dump($fitem); 
+             /*if($fitem == 'YES'){
+                  $featured_item = mysql_query("INSERT INTO `featured_item`(`item`,`date_added`,`status`) VALUES ('$last_item','NOW()','1');");
+              }*/
               //$itemtype_des = mysql_query("INSERT INTO itemtype_description (`type`, `language`, `title`) VALUES ([value-2],[value-3],[value-4]);";
 
               /*
@@ -326,19 +374,18 @@ if(@$_POST['subtract']){
 
               /*
                * product tag here
-               * */
-              /*
+              * */
+              
               //product tags here
-              $product_tags = '';
+              $product_tag = mysql_real_escape_string($row['Tag']);
               if($product_tag){
-              $tags = mysql_query("INSERT INTO `tags`( `name`) VALUES ([value-2]);");
-              $item_tags = mysql_query("INSERT INTO `item_tag`(`id`, `item`, `tag`) VALUES ([value-1],[value-2],[value-3]);");
+              $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag');");
+              $last_tag =  mysql_insert_id();
+              $item_tags = mysql_query("INSERT INTO `item_tag`(`id`, `item`, `tag`) VALUES ('$last_item','$last_tag');");
               }
-              */
             }
           }
         }
-
       } else {
         $message = '<span class="red">Only .csv file format is allowed</span>';
       }
@@ -369,11 +416,12 @@ if(@$_POST['subtract']){
 			<tr>
 				<td><input type="submit" id="btn" class="fl_l" value="export" name="add" /></td>
 			</tr>
-                      <tr>
-                               <td>File upload :- </td><br/>
-                                <td><input type="file" name="file" id="file" size="30" /></td>
-                               <td><input type="submit" name="subtract" value="Import"> </td>
-                      </tr>
+                        <tr>
+                             <td>File upload (import csv file ):- </td>
+                             <td><br/><br/><br/></td>
+                              <td><input type="file" name="file" id="file" size="30" /></td><br/>
+                             <td><input type="submit" name="subtract" value="Import"> </td>
+                       </tr>
 		</table>
 
 	</form>
