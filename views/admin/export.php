@@ -160,25 +160,25 @@ if(@$_POST['subtract']){
               $active = '';
               $store = '' ;
               //$procesing_unit = mysql_real_escape_string($row['procesing_unit']);
-              $procesing_unit = '20';
+              $procesing_unit = '20 Days';
               $pro_quantity = mysql_real_escape_string($row['Quantity']);
               $picture_url = mysql_real_escape_string($row['Featured Image']);
               $picture_name = '';
               $sku = mysql_real_escape_string($row['Product SKU']);
               $vsku = mysql_real_escape_string($row['Product ID']);
-              $fabric = mysql_real_escape_string($row['Attribute: Saree Fabric']); 
+              $fabric = mysql_real_escape_string($row['Attribute: Saree Fabric']);
               $size =  mysql_real_escape_string( $row['Attribute: Size']);
               $color = mysql_real_escape_string($row['Attribute: Colors']);
 
-             //var_dump($row);
-             //$sql = mysql_query("SELECT category_id FROM `category_description` WHERE title= '".mysql_real_escape_string($row['Category_title'])."' LIMIT 1");
-             //$row2 = mysql_fetch_array($sql);
-             /*
-              $shop_section = mysql_query("SELECT section_id,title FROM shops_section where title ='".mysql_real_escape_string($row['section_name'])."';");
-              $shop_section_name = mysql_fetch_array($shop_section) or die(mysql_error());
-              $shop_section = $shop_section_name['section_id'];
-              $shop_section_text = $shop_section_name['title'];*/
-              $shop_section_text = 'Latest';    
+              //var_dump($row);
+              //$sql = mysql_query("SELECT category_id FROM `category_description` WHERE title= '".mysql_real_escape_string($row['Category_title'])."' LIMIT 1");
+              //$row2 = mysql_fetch_array($sql);
+              /*
+                $shop_section = mysql_query("SELECT section_id,title FROM shops_section where title ='".mysql_real_escape_string($row['section_name'])."';");
+                $shop_section_name = mysql_fetch_array($shop_section) or die(mysql_error());
+                $shop_section = $shop_section_name['section_id'];
+                $shop_section_text = $shop_section_name['title'];*/
+              $shop_section_text = 'Latest';
               /*if(empty($shop_section)){
                 $section_name = mysql_real_escape_string($row['section_name']);
                 $shops_section = mysql_query("INSERT INTO `shops_section`( `shop_id`, `title`, `sort_order`, `meta_keywords`) VALUES ('41','$section_name','0','$section_name');");
@@ -186,8 +186,8 @@ if(@$_POST['subtract']){
                 $section_name = mysql_query("SELECT title FROM shops_section where section_id ='$shop_section';");
                 $section_name = mysql_fetch_array($shop_section) or die(mysql_error());
                 $section_name = $section_name['title'];
-              }*/
-                $shop_section = '81';
+                }*/
+              $shop_section = '81';
               /*
                 category find it out or create new one from csv file.
                 first sql :-
@@ -239,26 +239,25 @@ if(@$_POST['subtract']){
               if(strpos($row['Category'],'>')){
                 $exload = explode('>' ,$row['Category']);
                 $count = count($exload);
-                 if(strpos($exload[0],'|Jewellery')){
-                $exload[0] = str_replace("|Jewellery","", $exload[1]);
-                } 
+                if(strpos($exload[0],'|Jewellery')){
+                  $exload[0] = str_replace("|Jewellery","", $exload[0]);
+                }
                 if( isset($exload[1]) && strpos($exload[1],'|Jewellery')){
-                $exload[1] = str_replace("|Jewellery","", $exload[1]);
-                 // var_dump($exload[1]); 
-                }  
+                  $exload[1] = str_replace("|Jewellery","", $exload[1]);
+                  // var_dump($exload[1]);
+                }
                 if( isset($exload[2]) && strpos($exload[2],'|Jewellery')){
                   $exload[2] = str_replace("|Jewellery","", $exload[2]);
                 }
-                 echo "<pre>";
-                 var_dump($exload);
+
                 if( isset($exload[3]) && strpos($exload[3],'|Jewellery')){
                   $exload[3] = str_replace("|Jewellery","", $exload[3]);
                 }
                 //var_dump($exload);
                 //  var_dump($exload);
-               //three places category sql.
+                //three places category sql.
                 if( isset($exload[0]) && isset($exload[1]) && isset($exload[2]) ){
-   $pro_category = mysql_query("SELECT a.category_id AS 3st_id
+                  $pro_category = mysql_query("SELECT a.category_id AS 3st_id
 		FROM category_description a
 		LEFT JOIN category a1 ON a.category_id = a1.category_id
 		LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
@@ -267,9 +266,9 @@ if(@$_POST['subtract']){
 		LEFT JOIN category a6 ON a5.category_id = a6.category_id
 		WHERE a.title = '".$exload[2]."' AND a3.title = '".$exload[1]."' AND a6.parent_id IS NULL
 		group by a1.category_id;");
-                    //var_dump($pro_category);
-                    //die('3');
-                    //die('3');
+                  //var_dump($pro_category);
+                  //die('3');
+                  //die('3');
                 } else if(isset($exload[1]) && isset($exload[0])){
 
                   $pro_category = mysql_query("SELECT a1.category_id AS 2and_id
@@ -279,7 +278,7 @@ if(@$_POST['subtract']){
 				LEFT JOIN category a4 ON a3.category_id = a4.category_id
 				WHERE a.`title`= '".$exload[1]."' AND a3.`title`= '".$exload[0]."'AND a4.parent_id IS NULL
 				group by a1.category_id;");
-                } else if($count=4 && isset($exload[1]) && isset($exload[2]) && isset($exload[3]) ){
+                } else if( isset($exload[1]) && isset($exload[2]) && isset($exload[3]) ){
                   $pro_category = mysql_query("SELECT a.category_id AS 1st_id
 									FROM category_description a
 									LEFT JOIN category a1 ON a.category_id = a1.category_id
@@ -291,44 +290,43 @@ if(@$_POST['subtract']){
 									LEFT JOIN category a8 ON a7.category_id = a8.category_id
 									WHERE a.`title`= '".$exload[3]."' AND a3.title = '".$exload[2]."' AND a8.parent_id IS NULL
 									GROUP BY a1.category_id;");
-                 $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-                 $category_id = $pro_category['0'];    
-            }else if( isset($exload[0])){
+                  $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                  $category_id = $pro_category['0'];
+                }else if( isset($exload[0])){
 
-            $pro_category = mysql_query("SELECT a1.category_id
+                  $pro_category = mysql_query("SELECT a1.category_id
 		                         FROM category_description a
 		                         INNER JOIN category a1 ON a.category_id = a1.category_id
 		                         WHERE a.title = '".$exload[0]."'AND a1.parent_id IS NULL;");
-         }
-               
+                }
+
               }else{
-                $category_title = mysql_real_escape_string($row['Category']); 
-             // var_dump($category_title);
+                $category_title = mysql_real_escape_string($row['Category']);
+                // var_dump($category_title);
                 if(strpos($category_title,'|Jewellery')){
-                $category_title = str_replace("|Jewellery","", $category_title);
-                } 
+                  $category_title = str_replace("|Jewellery","", $category_title);
+                }
 
                 $pro_category = mysql_query("SELECT a1.category_id
 		                         FROM category_description a
 		                         INNER JOIN category a1 ON a.category_id = a1.category_id
 		                         WHERE a.title = '".$category_title."'AND a1.parent_id IS NULL;");
-                   
-             // die('sds55');
-              }
-                  if(!empty($pro_category)){
-                   $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-                   $category_id = $pro_category['0'];
-                  }
-                  var_dump($category_id);
-                  //die('sds85');
-                  //$category_id = $pro_category[0];
-                  // var_dump($category_id);
-              /*
-                insert new product in item table
-              */
-              $sql = "INSERT INTO `item` (`category`, `user`, `title`,`description`,`shop_id`,`shop_section`,`shop_section_text`,`price`,`procesing_unit`, `ship_from_country`, `created_at`, `hand_picked`, `active`, `store`, `fee_paid`,`approved`,`sku`, `vsku`,`Attribute: Saree Fabric`,`Attribute: Colors`,`Attribute: Size`) VALUES ('$category_id','59','$product_name','$pro_description','40','$shop_section','$shop_section_text','$price', '$procesing_unit', '$ship_from_country', 'NOW()','1', '1', '40','1', '1','$sku','$vsku','$fabric','$color','$size');";
 
-             var_dump($sql);
+                // die('sds55');
+              }
+              if(!empty($pro_category)){
+                $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                $category_id = $pro_category['0'];
+              }
+             //var_dump($category_id);
+              //die('sds85');
+              //$category_id = $pro_category[0];
+              // var_dump($category_id);
+              /*
+                Insert new product in item table
+              */
+              $sql = "INSERT INTO `item` (`category`, `user`, `title`,`description`,`shop_id`,`shop_section`,`shop_section_text`,`price`,`procesing_unit`, `ship_from_country`, `created_at`, `hand_picked`, `active`, `store`, `fee_paid`,`approved`,`sku`, `vsku`,`Attribute: Saree Fabric`,`Attribute: Colors`,`Attribute: Size`) VALUES ('$category_id','59','$product_name','$pro_description','40','$shop_section','$shop_section_text','$price', '$procesing_unit', '$ship_from_country', 'NOW()','1', '1', 'Upload_Model_Locale','1', '1','$sku','$vsku','$fabric','$color','$size');";
+
               $sql_run = mysql_query($sql);
 
               //$category = mysql_fetch_array($sql_run) or die(mysql_error());
@@ -337,15 +335,17 @@ if(@$_POST['subtract']){
                 products quantity
               */
               $quantity = mysql_query("INSERT INTO `item_quantity`(`item`,`quantity`) VALUES ('$last_item','$pro_quantity')");
-              
-               /*
-                 for the featured item here .
-               */
-             $fitem = $row['Featured'];
-             //var_dump($fitem); 
-             /*if($fitem == 'YES'){
-                  $featured_item = mysql_query("INSERT INTO `featured_item`(`item`,`date_added`,`status`) VALUES ('$last_item','NOW()','1');");
-              }*/
+
+              /*
+                for the featured item here .
+              */
+              $fitem = $row['Featured'];
+              //var_dump($fitem);
+              /*if($fitem == 'YES'){
+                $featured_item = mysql_query("INSERT INTO `featured_item`(`item`,`date_added`,`status`) VALUES ('$last_item','NOW()','1');");
+                }*/
+              // feature item query..
+
               //$itemtype_des = mysql_query("INSERT INTO itemtype_description (`type`, `language`, `title`) VALUES ([value-2],[value-3],[value-4]);";
 
               /*
@@ -361,7 +361,7 @@ if(@$_POST['subtract']){
               /*
                * base path of web site and than picture path for product image.
                * */
-              $base_url = "http://localhost/testing/Csvie/".$picture_url;
+              $base_url = $picture_url;
 
               $picture_temp = mysql_query("INSERT INTO `picture_temp` (`id`,`size` ,`width`,`height`,`image`,`original`,`mime`) VALUES (
 '$picture_id', '_D', '250', '250', '$base_url', '$base_url', 'image/jpeg');");
@@ -374,14 +374,67 @@ if(@$_POST['subtract']){
 
               /*
                * product tag here
-              * */
-              
+               */
+
               //product tags here
               $product_tag = mysql_real_escape_string($row['Tag']);
-              if($product_tag){
-              $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag');");
-              $last_tag =  mysql_insert_id();
-              $item_tags = mysql_query("INSERT INTO `item_tag`(`id`, `item`, `tag`) VALUES ('$last_item','$last_tag');");
+              
+              if(!empty($product_tag)){
+
+                if(strpos($product_tag,'|')){
+
+                $tags = explode('|' ,$product_tag);
+
+                $product_tag = $tags[0];
+                $product_tag1 =  $tags[1]; 
+                
+                if(!empty($product_tag1)){
+                
+                $tags1 = mysql_query("SELECT  id FROM `tags` WHERE name = '".$product_tag1."';");
+                $last_tag1 = mysql_fetch_array($tags1) or die(mysql_error());
+                //var_dump($last_tag[0]);
+                $last_tag1 = $last_tag1[0];
+                if(empty($last_tag1)){
+                  $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag1');");
+                  $last_tag1  = mysql_insert_id();
+                  $item_tags = mysql_query("INSERT INTO `item_tag`(`item`, `tag`) VALUES ('$last_item','$last_tag1');");
+                }
+                     }
+                 //$product_tag
+                 }
+
+                
+                $tags = mysql_query("SELECT  id FROM `tags` WHERE name = '".$product_tag."';");
+                $last_tag = mysql_fetch_array($tags) or die(mysql_error());
+                //var_dump($last_tag[0]);
+                $last_tag = $last_tag[0];
+                if(empty($last_tag)){
+                  $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag');");
+                  $last_tag  = mysql_insert_id();
+                }
+                //var_dump($tags);
+                //echo $last_item;
+                //echo $last_tag;
+                /*
+                  INSERT INTO `item_tag`(`item`, `tag`) VALUES ('407','0');
+                */
+                if($last_tag && $last_item){
+
+                  $item_tags = mysql_query("INSERT INTO `item_tag`(`item`, `tag`) VALUES ('$last_item','$last_tag');");
+                  /*
+                    Table item_style entry.
+                  */
+                  $item_style = mysql_query("INSERT INTO `item_style`(`item`, `style`) VALUES ('$last_item','$last_tag');");
+                  /*
+                    item_material Table entry
+                  */
+                  $item_material = mysql_query("INSERT INTO `item_material`( `item`, `material`) VALUES ('$last_item','$last_tag');");
+ var_dump($last_item);
+                   die('sdsd22');
+                }
+              }
+              if(!empty($last_item)){
+                $item_shipment = mysql_query("INSERT INTO `item_shipment`(`item`, `country`,`shipment_price`,`shipment_multiple_price`) VALUES ( '$last_item', `107`, `0`, `0`)");
               }
             }
           }
