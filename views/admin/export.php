@@ -1,4 +1,6 @@
 <?php
+
+error_reporting(E_ALL ^ E_DEPRECATED);
 $host = 'localhost'; // MYSQL database host adress
 $db = 'upload'; // MYSQL database name
 $user = 'root'; // Mysql Datbase user
@@ -17,7 +19,7 @@ $pass = 'root'; // Mysql Datbase password
       }
 
       //change databse name here
-      $db = 'test1';
+      $db = 'upload';
       mysql_select_db("$db", $con);
       $getTable = "SELECT a.sku,a.vsku,a3.name  AS product_tags_name,a.title  AS product_name ,a.description  AS product_description,a.price  AS product_price,a.procesing_unit,a12.title AS shop_name,a14.iso2 AS ship_from_country,
 a8.picture  AS product_pic_name,a15.title AS Category_title,a1.quantity AS product_quantity,a16.title AS section_name
@@ -40,7 +42,7 @@ WHERE 1
 GROUP BY a.id DESC";
       echo $getTable;
       $table = mysql_query($getTable) or die ("Sql error : " . mysql_error());
-      $exportCSV = fopen("/home/web/public_html/testing/export.csv", 'w');
+      $exportCSV = fopen("/home/manish/public_html/test/export.csv", 'w');
 
       // fetch a row and write the column names out to the file
       $row = mysql_fetch_assoc($table);
@@ -69,7 +71,7 @@ GROUP BY a.id DESC";
       }
       fclose($exportCSV);
 
-      header('Location: http://localhost/testing/export.csv');
+      header('Location: http://localhost/test/views/export.csv');
       exit;
 
     }
@@ -80,7 +82,8 @@ if(@$_POST['subtract']){
 
   $message = null;
   $allowed_extensions = array('csv');
-  $upload_path = '/home/web/public_html/testing/Csvie/views/admin';
+  //$upload_path = '/home/web/public_html/testing/Csvie/views/admin';
+  $upload_path = '/home/manish/public_html/test/views/admin';
 
   if (!empty($_FILES['file'])) {
     if ($_FILES['file']['error'] == 0) {
@@ -127,19 +130,23 @@ if(@$_POST['subtract']){
             /*
               connection to database
             */
-            $con = mysql_connect("localhost","root","root");
+            $con2 = mysql_connect("localhost","root","root");
 
-            if (!$con){
+            if (!$con2){
               die('Could not connect: ' . mysql_error());
-            }
+  
+          }
+
+//*/
+
             /*
               select database on import.
             */
-            mysql_select_db("test1", $con);
+           mysql_select_db("upload", $con2);
 
             $csvArray = ImportCSV2Array($handle);
-
-            foreach($csvArray as $row){
+	
+           foreach($csvArray as $row){
 
               $shop_section = NULL;
               $shop_section_text = NULL;
@@ -157,18 +164,17 @@ if(@$_POST['subtract']){
               $ship_from_country = '107';
               $created_at = "NOW()";
               $hand_picked = '1';
-              $active = '';
-              $store = '' ;
-              //$procesing_unit = mysql_real_escape_string($row['procesing_unit']);
-              $procesing_unit = '20';
-              $pro_quantity = mysql_real_escape_string($row['Quantity']);
+              $procesing_unit = '1 day';
+              $procesing_unit = mysql_real_escape_string($row['Processing_time']) .' day';
+              $pro_quantity = mysql_real_escape_string(trim($row['Quantity']));
               $picture_url = mysql_real_escape_string($row['Featured Image']);
               $picture_name = '';
               $sku = mysql_real_escape_string($row['Product SKU']);
-              $vsku = mysql_real_escape_string($row['Product ID']);
-              $fabric = mysql_real_escape_string($row['Attribute: Saree Fabric']); 
-              $size =  mysql_real_escape_string( $row['Attribute: Size']);
-              $color = mysql_real_escape_string($row['Attribute: Colors']);
+              @$vsku = mysql_real_escape_string($row['Product ID']);
+        
+              $fabric = mysql_real_escape_string(trim($row['Attribute:Saree Fabric'])); 
+              $size =  mysql_real_escape_string(trim($row['Attribute:Size']));
+              $color = mysql_real_escape_string(trim($row['Attribute:Colors']));
 
              //var_dump($row);
              //$sql = mysql_query("SELECT category_id FROM `category_description` WHERE title= '".mysql_real_escape_string($row['Category_title'])."' LIMIT 1");
@@ -239,26 +245,21 @@ if(@$_POST['subtract']){
               if(strpos($row['Category'],'>')){
                 $exload = explode('>' ,$row['Category']);
                 $count = count($exload);
-                 if(strpos($exload[0],'|Jewellery')){
-                $exload[0] = str_replace("|Jewellery","", $exload[1]);
+                if(strpos($exload[0],'|Jewellery')){
+                  $exload[0] = str_replace("|Jewellery","", $exload[1]);
                 } 
                 if( isset($exload[1]) && strpos($exload[1],'|Jewellery')){
-                $exload[1] = str_replace("|Jewellery","", $exload[1]);
-                 // var_dump($exload[1]); 
+                  $exload[1] = str_replace("|Jewellery","", $exload[1]);
                 }  
                 if( isset($exload[2]) && strpos($exload[2],'|Jewellery')){
                   $exload[2] = str_replace("|Jewellery","", $exload[2]);
                 }
-                 echo "<pre>";
-                 var_dump($exload);
                 if( isset($exload[3]) && strpos($exload[3],'|Jewellery')){
                   $exload[3] = str_replace("|Jewellery","", $exload[3]);
                 }
-                //var_dump($exload);
-                //  var_dump($exload);
-               //three places category sql.
+
                 if( isset($exload[0]) && isset($exload[1]) && isset($exload[2]) ){
-   $pro_category = mysql_query("SELECT a.category_id AS 3st_id
+                  $pro_category = mysql_query("SELECT a.category_id AS 3st_id
 		FROM category_description a
 		LEFT JOIN category a1 ON a.category_id = a1.category_id
 		LEFT JOIN category_description a3 ON a1.parent_id = a3.category_id
@@ -267,9 +268,7 @@ if(@$_POST['subtract']){
 		LEFT JOIN category a6 ON a5.category_id = a6.category_id
 		WHERE a.title = '".$exload[2]."' AND a3.title = '".$exload[1]."' AND a6.parent_id IS NULL
 		group by a1.category_id;");
-                    //var_dump($pro_category);
-                    //die('3');
-                    //die('3');
+                   
                 } else if(isset($exload[1]) && isset($exload[0])){
 
                   $pro_category = mysql_query("SELECT a1.category_id AS 2and_id
@@ -291,36 +290,34 @@ if(@$_POST['subtract']){
 									LEFT JOIN category a8 ON a7.category_id = a8.category_id
 									WHERE a.`title`= '".$exload[3]."' AND a3.title = '".$exload[2]."' AND a8.parent_id IS NULL
 									GROUP BY a1.category_id;");
-                 $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-                 $category_id = $pro_category['0'];    
-            }else if( isset($exload[0])){
+                  $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                  $category_id = $pro_category['0'];    
+                }else if( isset($exload[0])){
 
-            $pro_category = mysql_query("SELECT a1.category_id
+                  $pro_category = mysql_query("SELECT a1.category_id
 		                         FROM category_description a
 		                         INNER JOIN category a1 ON a.category_id = a1.category_id
 		                         WHERE a.title = '".$exload[0]."'AND a1.parent_id IS NULL;");
-         }
+                }
                
               }else{
                 $category_title = mysql_real_escape_string($row['Category']); 
-             // var_dump($category_title);
+                //var_dump($category_title);
                 if(strpos($category_title,'|Jewellery')){
-                $category_title = str_replace("|Jewellery","", $category_title);
+                  $category_title = str_replace("|Jewellery","", $category_title);
                 } 
-
                 $pro_category = mysql_query("SELECT a1.category_id
 		                         FROM category_description a
 		                         INNER JOIN category a1 ON a.category_id = a1.category_id
-		                         WHERE a.title = '".$category_title."'AND a1.parent_id IS NULL;");
-                   
-             // die('sds55');
+		                         WHERE a.title = '".$category_title."'AND a1.parent_id IS NULL;");    
               }
-                  if(!empty($pro_category)){
-                   $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
-                   $category_id = $pro_category['0'];
+              if(!empty($pro_category)){
+                $pro_category = mysql_fetch_array($pro_category) or die(mysql_error());
+                $category_id = $pro_category['0'];
+              }else{
+                    $category_id = '1';
                   }
-                  var_dump($category_id);
-                  //die('sds85');
+
                   //$category_id = $pro_category[0];
                   // var_dump($category_id);
               /*
@@ -328,8 +325,7 @@ if(@$_POST['subtract']){
               */
               $sql = "INSERT INTO `item` (`category`, `user`, `title`,`description`,`shop_id`,`shop_section`,`shop_section_text`,`price`,`procesing_unit`, `ship_from_country`, `created_at`, `hand_picked`, `active`, `store`, `fee_paid`,`approved`,`sku`, `vsku`,`Attribute: Saree Fabric`,`Attribute: Colors`,`Attribute: Size`) VALUES ('$category_id','59','$product_name','$pro_description','40','$shop_section','$shop_section_text','$price', '$procesing_unit', '$ship_from_country', 'NOW()','1', '1', '40','1', '1','$sku','$vsku','$fabric','$color','$size');";
 
-             var_dump($sql);
-              $sql_run = mysql_query($sql);
+             $sql_run = mysql_query($sql);
 
               //$category = mysql_fetch_array($sql_run) or die(mysql_error());
               $last_item = mysql_insert_id();
@@ -337,15 +333,89 @@ if(@$_POST['subtract']){
                 products quantity
               */
               $quantity = mysql_query("INSERT INTO `item_quantity`(`item`,`quantity`) VALUES ('$last_item','$pro_quantity')");
-              
+ 
+              if(!empty($color)){            
+            $variationcolor = mysql_query("SELECT id FROM `variation` WHERE `parent` = '17' AND value = '$color'");
+            
+            $variation_color = mysql_fetch_array($variationcolor);
+            $variation_color =  $variation_color['id'];
+            $parent = '17';
+        if(!empty($variation_color[0]) && empty($variationcolor) ){
+
+            $variation = mysql_query("INSERT INTO `variation`(`parent`,`value`, `user`) VALUES ( '$parent','$color', '59');");
+            $variation_color = mysql_insert_id();
+            }
+        }   
+             
+           if(!empty($size)){
+          
+           $variationsize = mysql_query("SELECT id FROM `variation` WHERE `parent` = '16' AND value = '$size'");
+
+           $variation_size = mysql_fetch_array($variationsize);
+           $variation_size =  $variation_size[0];
+              $parent = '16';
+
+            //final sql for variation one 
+           //$parent = '16';
+if( $variation_size == null || $variationsize == null ){
+
+           $variation = mysql_query("INSERT INTO `variation`(`parent`,`value`, `user`) VALUES ( '$parent','$size', '59');");
+           $variation_size = mysql_insert_id();
+                   }
+            }
+		/*
+		echo $color;
+		echo "<br/>";
+		echo $size;
+		echo "<pre/>";
+		echo "<br/>";
+		var_dump($variation_color);*/
+		var_dump($variation_size);
+        if(!empty($variation_size) && !empty($variation_color)){
+
+          $item_quantity = mysql_query("INSERT INTO `item_quantity`(`item`, `variation`, `subvariation`, `quantity`) VALUES ('$last_item', '$variation_color', '$variation_size', '$pro_quantity');");
+
+        }else if(empty($variation_color) && !empty($variation_size)){
+          $item_quantity = mysql_query("INSERT INTO `item_quantity`(`item`, `variation`, `subvariation`, `quantity`) VALUES ('$last_item', '16', '$variation_size', '$pro_quantity');");
+
+        }else if(!empty($variation_color) && empty($variation_size)){
+
+          $item_quantity = mysql_query("INSERT INTO `item_quantity`(`item`, `variation`, `subvariation`, `quantity`) VALUES ('$last_item', '17', '$variation_color', '$pro_quantity');");
+        }
+        /*else if(!empty($variation_size[0])){
+          $item_quantity = mysql_query("INSERT INTO `item_quantity`(`item`, `variation`, `subvariation`, `quantity`) VALUES ('$last_item', '16', '$variation_color', '$pro_quantity');");
+          } */
+                  /* new Entry for the end*/
+                //start fabric here
+
+        if(!empty($fabric)){
+          $parent = '14';
+          $variation_fabric = mysql_query("SELECT id FROM `variation` WHERE `parent` = '14' AND value = '$fabric'");  
+           
+          $variation_fabric = mysql_fetch_array($variation_fabric);
+
+          if($variation_fabric[0] == null && $variation_fabric == null ){
+            $variation = mysql_query("INSERT INTO `variation`(`parent`,`value`, `user`) VALUES ( '$parent','$fabric', '59');");
+            $last_fabric = mysql_insert_id();
+           
+            $item_quantity = mysql_query("INSERT INTO `item_quantity`(`item`, `variation`, `subvariation`, `quantity`) VALUES ('$last_item', '14', '$last_fabric', '$pro_quantity');");
+          }else if(!empty($variation_fabric) && !empty($variation_fabric)){
+
+            $item_quantity_fabric = mysql_query("INSERT INTO `item_quantity`(`item`, `variation`, `subvariation`, `quantity`) VALUES ('$last_item', '14', '$variation_fabric[0]', '$pro_quantity');");
+
+          }
+        }
                /*
                  for the featured item here .
                */
              $fitem = $row['Featured'];
-             //var_dump($fitem); 
-             /*if($fitem == 'YES'){
+ 
+            //var_dump($fitem); 
+
+/*             if($fitem == 'YES'){
                   $featured_item = mysql_query("INSERT INTO `featured_item`(`item`,`date_added`,`status`) VALUES ('$last_item','NOW()','1');");
-              }*/
+             }
+*/
               //$itemtype_des = mysql_query("INSERT INTO itemtype_description (`type`, `language`, `title`) VALUES ([value-2],[value-3],[value-4]);";
 
               /*
@@ -361,7 +431,7 @@ if(@$_POST['subtract']){
               /*
                * base path of web site and than picture path for product image.
                * */
-              $base_url = "http://localhost/testing/Csvie/".$picture_url;
+              $base_url = $picture_url;
 
               $picture_temp = mysql_query("INSERT INTO `picture_temp` (`id`,`size` ,`width`,`height`,`image`,`original`,`mime`) VALUES (
 '$picture_id', '_D', '250', '250', '$base_url', '$base_url', 'image/jpeg');");
@@ -376,12 +446,122 @@ if(@$_POST['subtract']){
                * product tag here
               * */
               
+              /*
+               * product tag here
+               * */
               //product tags here
-              $product_tag = mysql_real_escape_string($row['Tag']);
+              $product_tag = mysql_real_escape_string($row['Tags']);
               if($product_tag){
-              $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag');");
-              $last_tag =  mysql_insert_id();
-              $item_tags = mysql_query("INSERT INTO `item_tag`(`id`, `item`, `tag`) VALUES ('$last_item','$last_tag');");
+                $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag');");
+                $last_tag =  mysql_insert_id();
+                $item_tags = mysql_query("INSERT INTO `item_tag`(`id`, `item`, `tag`) VALUES ('$last_item','$last_tag');");
+              }
+              //product tags Start here.
+              $product_tag = mysql_real_escape_string($row['Tags']);
+              
+              if(!empty($product_tag)){
+
+                if(strpos($product_tag,'|')){
+
+                  $tags = explode('|' ,$product_tag);
+
+                  $product_tag = $tags[0];
+
+                  $product_tag1 =  $tags[1]; 
+                 
+                  if(!empty($product_tag1)){
+
+
+                    $ltags1 = mysql_query("SELECT id FROM `tags` WHERE name = '$product_tag1';");
+
+                    $last_tag1 = mysql_fetch_array($ltags1);
+                    $last_tag1 = $last_tag1[0];
+
+                    if(empty($last_tag1) || empty($ltags1) ){
+                      $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag1');");
+                      $last_tag1  = mysql_insert_id();
+                      $item_tags = mysql_query("INSERT INTO `item_tag`(`item`, `tag`) VALUES ('$last_item','$last_tag1');");
+                    }
+                  }
+                  //tag third start here ..   
+
+                  $product_tag2 =  $tags[2]; 
+                  if(!empty($product_tag2)){                
+
+                    $tags2 = mysql_query("SELECT  id FROM `tags` WHERE name = '".$product_tag2."';");
+
+                    $last_tag2 = mysql_fetch_array($tags2);
+                    $last_tag2 = $last_tag2[0];
+                    if(empty($last_tag2) || empty($tags2) ){
+                      $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag1');");
+                      $last_tag2  = mysql_insert_id();
+                      $item_tags = mysql_query("INSERT INTO `item_tag`(`item`, `tag`) VALUES ('$last_item','$last_tag2');");
+                    }
+                  }
+
+                }
+                $tags = mysql_query("SELECT  id FROM `tags` WHERE name = '".$product_tag."';");
+                $last_tag = mysql_fetch_array($tags) or die(mysql_error());
+                //var_dump($last_tag[0]);
+                $last_tag = $last_tag[0];
+                if(empty($last_tag)){
+                  $tags = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$product_tag');");
+                  $last_tag  = mysql_insert_id();
+                }
+                /*
+                  INSERT INTO `item_tag`(`item`, `tag`) VALUES ('407','0');
+                */
+                if($last_tag && $last_item){
+                   /*
+                    * Table Entry for item_tag 
+                    */  
+                  $item_tags = mysql_query("INSERT INTO `item_tag`(`item`, `tag`) VALUES ('$last_item','$last_tag');");
+                  /*
+                    Table item_style entry.
+                  */
+                  $item_style = mysql_query("INSERT INTO `item_style`(`item`, `style`) VALUES ('$last_item','$last_tag');");
+                  /*
+                    item_material Table entry.
+                  */
+                 // $item_material = mysql_query("INSERT INTO `item_material`( `item`, `material`) VALUES ('$last_item','$last_tag');");
+                }
+              } 
+
+
+                /*
+                    item_material Table entry.
+                 */
+                    
+                  $material = mysql_real_escape_string(trim($row['Material']));
+                   if(!empty($material)){
+                  $tags_material = mysql_query("SELECT id FROM `tags` WHERE name = '$material';");   
+   
+                  $last_tag = mysql_fetch_array($tags_material);
+                  $last_tag = $last_tag[0];
+                  if(empty($last_tag) || empty($tags_material)){
+
+                  $material = mysql_query("INSERT INTO `tags`(`name`) VALUES ('$material');");
+
+                  $last_tag  = mysql_insert_id();
+
+                  $item_material = mysql_query("INSERT INTO `item_material`( `item`, `material`) VALUES ('$last_item','$last_tag');");
+
+                  }else if(!empty($last_tag)){
+
+                  $item_material = mysql_query("INSERT INTO `item_material`( `item`, `material`) VALUES ('$last_item','$last_tag');");
+                     }
+                 }
+                /*
+                   material End here
+
+                   
+ 
+               if(!empty($last_item)){
+                /*
+                * Table Entry for Shipment- item_shipment
+                * */
+                $item_shipment = mysql_query("INSERT INTO `item_shipment` (`id`, `item`, `country`, `city`, `shipment_price`, `shipment_multiple_price`) VALUES (NULL, '$last_item', '107', NULL, '0', '0');");
+                
               }
             }
           }
@@ -416,12 +596,11 @@ if(@$_POST['subtract']){
 			<tr>
 				<td><input type="submit" id="btn" class="fl_l" value="export" name="add" /></td>
 			</tr>
-                        <tr>
-                             <td>File upload (import csv file ):- </td>
-                             <td><br/><br/><br/></td>
-                              <td><input type="file" name="file" id="file" size="30" /></td><br/>
-                             <td><input type="submit" name="subtract" value="Import"> </td>
-                       </tr>
+                      <tr>
+                               <td>File upload (import products) :- </td><br/>
+                                <td><input type="file" name="file" id="file" size="30" /></td>
+                               <td><input type="submit" name="subtract" value="Import"> </td>
+                      </tr>
 		</table>
 
 	</form>
