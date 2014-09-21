@@ -5,7 +5,7 @@ class Csvie_AdminController extends Helper_Controller_Admin
 
     public static function config()
     {
-      die('sdsd');
+
         return array(
             'name' => JO_Translate::getInstance()->translate('CSVIE'),
             'has_permision' => true,
@@ -69,7 +69,7 @@ class Csvie_AdminController extends Helper_Controller_Admin
 
         $request = $this->getRequest();
 
-        $this->view->new_record_url = WM_Router::create($request->getBaseUrl() . '?module=banners&controller=admin&action=create');
+        $this->view->new_record_url = WM_Router::create($request->getBaseUrl() . '?module=csvie&controller=admin&action=create');
 
 
         $page = $request->getRequest('page', 1);
@@ -86,7 +86,7 @@ class Csvie_AdminController extends Helper_Controller_Admin
         if ($words) {
             foreach ($words AS $word) {
                 $word['text_controller'] = $this->positions($word['controller']);
-                $word['edit'] = WM_Router::link('module=banners&controller=admin&action=edit&id=' . $word['id']);
+                $word['edit'] = WM_Router::link('module=csvie&controller=admin&action=edit&id=' . $word['id']);
                 $this->view->words[] = $word;
             }
         }
@@ -206,7 +206,7 @@ class Csvie_AdminController extends Helper_Controller_Admin
             $banner_info = Banners_Model_Banners::getBanner($dic_id);
         }
 
-        $this->view->cancel_url = WM_Router::create($this->getRequest()->getBaseUrl() . '?module=banners&controller=admin');
+        $this->view->cancel_url = WM_Router::create($this->getRequest()->getBaseUrl() . '?module=csvie&controller=admin');
 
 
         if ($request->getPost('status')) {
